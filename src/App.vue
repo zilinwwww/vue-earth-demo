@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h1>Vue Earth Demo</h1>
+    <div class="header">
+      <h1>🌍 深圳全球连线</h1>
+      <p>深圳作为中心，连接全球主要城市</p>
+    </div>
     <EarthView />
   </div>
 </template>
@@ -26,10 +29,26 @@ import EarthView from './EarthView.vue'
   flex-direction: column;
 }
 
-h1 {
+.header {
   text-align: center;
   padding: 20px;
   background: rgba(0, 0, 0, 0.8);
   z-index: 100;
+  position: relative;
+}
+
+h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5em;
+  background: linear-gradient(45deg, #00DDFF, #FF6B6B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+p {
+  margin: 0;
+  color: #ccc;
+  font-size: 1.2em;
 }
 </style>
