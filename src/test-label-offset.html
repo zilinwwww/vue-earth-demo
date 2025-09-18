@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市标签偏移测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        .code {
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌍 城市标签偏移功能测试</h1>
+    
+    <div class="test-section">
+        <h2>✅ 功能实现完成</h2>
+        <p>现在 <code>labelOffset</code> 已经直接集成到 <code>CityData</code> 接口中！</p>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 新的使用方式</h2>
+        <div class="code">
+// 在 CityData 中直接定义 labelOffset
+const cityData: CityData[] = [
+  {
+    name: '深圳',
+    lng: 114.0579,
+    lat: 22.5431,
+    color: 0xffffff,
+    labelOffset: { x: 0, y: 0, z: 0 } // 无偏移
+  },
+  {
+    name: '北京',
+    lng: 116.4,
+    lat: 39.9,
+    color: 0xffffff,
+    labelOffset: { x: 5, y: 0, z: 0 } // 向右偏移
+  }
+]
+
+// 使用新方式创建城市
+const city = useCity(cityData[0], {
+  onHover: (city) => console.log('悬停城市:', city.name)
+})
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 向后兼容</h2>
+        <p>传统调用方式仍然支持：</p>
+        <div class="code">
+// 传统方式仍然可用
+const city = useCity([lng, lat], '城市名', {
+  color: 0xffffff,
+  labelOffset: { x: 5, y: 0, z: 0 }
+})
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 当前效果</h2>
+        <p>在 <a href="http://localhost:3001/" target="_blank">http://localhost:3001/</a> 中查看效果：</p>
+        <ul>
+            <li>深圳：无偏移</li>
+            <li>北京：向右偏移</li>
+            <li>上海：向左偏移</li>
+            <li>西安：向上偏移</li>
+            <li>南京：向下偏移</li>
+            <li>杭州：右上偏移</li>
+            <li>东莞：左上偏移</li>
+            <li>成都：更向上偏移</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>✨ 优势</h2>
+        <ul>
+            <li>数据结构更清晰，所有城市属性集中管理</li>
+            <li>支持函数重载，两种调用方式都可用</li>
+            <li>类型安全，完整的 TypeScript 支持</li>
+            <li>向后兼容，不影响现有代码</li>
+        </ul>
+    </div>
+</body>
+</html>

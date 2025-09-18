@@ -8,6 +8,7 @@ export interface CityData {
   lng: number;
   lat: number;
   color: number;
+  labelOffset?: { x: number; y: number; z: number };
 }
 
 /**

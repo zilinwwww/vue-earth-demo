@@ -11,7 +11,7 @@ import type { CityObject, CityData } from './types'
 
 const containerRef = ref<HTMLDivElement>()
 
-// 悬停状态
+// 悬停状态 - 必须在组件作用域内定义
 const hoverState = reactive({
   visible: false,
   position: { x: 0, y: 0 },
@@ -19,7 +19,7 @@ const hoverState = reactive({
 })
 
 // 鼠标交互实例
-let mouseInteraction: any = null
+let mouseInteraction: { destroy: () => void } | null = null
 
 onMounted(() => {
   if (!containerRef.value) return
@@ -32,20 +32,19 @@ onMounted(() => {
   
   // --- 数据定义 ---
   const cityData: CityData[] = [
-    { name: '深圳', lng: 114.0579, lat: 22.5431, color: 0xffffff },
-    { name: '北京', lng: 116.4, lat: 39.9, color: 0xffffff },
-    { name: '上海', lng: 121.4737, lat: 31.2304, color: 0xffffff },
-    { name: '西安', lng: 108.9402, lat: 34.3416, color: 0xffffff },
-    { name: '南京', lng: 118.7969, lat: 32.0603, color: 0xffffff },
-    { name: '杭州', lng: 120.1551, lat: 30.2741, color: 0xffffff },
-    { name: '东莞', lng: 113.7463, lat: 23.0223, color: 0xffffff },
-    { name: '成都', lng: 104.0668, lat: 30.5728, color: 0xffffff },
+    { name: '深圳', lng: 114.0579, lat: 22.5431, color: 0xffffff, labelOffset: { x: -5, y: 0, z: 0 } },
+    { name: '北京', lng: 116.4, lat: 39.9, color: 0xffffff, labelOffset: { x: -5, y: 0, z: 0 } },
+    { name: '上海', lng: 121.4737, lat: 31.2304, color: 0xffffff, labelOffset: { x: 5, y: 0, z: 0 } },
+    { name: '西安', lng: 108.9402, lat: 34.3416, color: 0xffffff, labelOffset: { x: 0, y: 5, z: 0 } },
+    { name: '南京', lng: 118.7969, lat: 32.0603, color: 0xffffff, labelOffset: { x: 0, y: -5, z: 0 } },
+    { name: '杭州', lng: 120.1551, lat: 30.2741, color: 0xffffff, labelOffset: { x: -8, y: 3, z: 0 } },
+    { name: '东莞', lng: 113.7463, lat: 23.0223, color: 0xffffff, labelOffset: { x: 8, y: 3, z: 0 } },
+    { name: '成都', lng: 104.0668, lat: 30.5728, color: 0xffffff, labelOffset: { x: 0, y: 8, z: 0 } },
   ]
   
   // --- 场景对象创建 ---
   const cityObjects: CityObject[] = cityData.map(city => {
-    const cityObj = useCity([city.lng, city.lat], city.name, { 
-      color: city.color,
+    const cityObj = useCity(city, {
       onHover: (cityObj) => {
         console.log(`悬停在城市: ${cityObj.name}`)
       },
@@ -54,7 +53,6 @@ onMounted(() => {
       }
     })
     earthGroup.add(cityObj.mesh)
-    console.log(`添加城市 ${city.name} 到场景，userData:`, cityObj.mesh.userData)
     return { ...cityObj, data: city }
   })
   

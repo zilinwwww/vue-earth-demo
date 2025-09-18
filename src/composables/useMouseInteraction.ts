@@ -26,31 +26,20 @@ export function useMouseInteraction(options: MouseInteractionOptions) {
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
     
-    // 调试：检查鼠标位置
-    console.log('鼠标位置:', mouse.x, mouse.y)
-    
     // 射线检测
     raycaster.setFromCamera(mouse, camera)
     const intersects = raycaster.intersectObjects(scene.children, true)
     
-    // 调试信息
-    console.log('射线检测结果:', intersects.length, '个交点')
-    console.log('场景子对象数量:', scene.children.length)
-    
     // 查找城市对象
     let foundCity: CityObject | null = null
     for (const intersect of intersects) {
-      console.log('检测到对象:', intersect.object.userData)
-      
       // 向上查找父级对象，直到找到有 city userData 的对象
-      let currentObject = intersect.object
+      let currentObject: THREE.Object3D | null = intersect.object
       while (currentObject) {
-        console.log('检查对象:', currentObject.userData)
         if (currentObject.userData?.type === 'city') {
-          console.log('找到城市:', currentObject.userData.name)
           foundCity = {
             mesh: currentObject,
-            getPosition: () => currentObject.position.clone(),
+            getPosition: () => currentObject!.position.clone(),
             name: currentObject.userData.name,
             data: {
               name: currentObject.userData.name,

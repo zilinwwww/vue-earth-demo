@@ -1,25 +1,57 @@
 // useCity.ts
 import * as THREE from 'three'
-import type { CityObject } from '../types'
+import type { CityObject, CityData } from '../types'
 
 interface UseCityOptions {
   radius?: number
   color?: THREE.Color | string | number
+  labelOffset?: { x: number; y: number; z: number }
   onHover?: (city: CityObject, event: MouseEvent) => void
   onLeave?: (city: CityObject, event: MouseEvent) => void
 }
 
+// 函数重载：接受 CityData 参数
+export function useCity(cityData: CityData, options?: Omit<UseCityOptions, 'color' | 'labelOffset'>): CityObject
+// 函数重载：接受传统参数
+export function useCity(lngLat: [number, number], name: string, options?: UseCityOptions): CityObject
+// 实现
 export function useCity(
-  lngLat: [number, number],
-  name: string,
-  options: UseCityOptions
+  lngLatOrCityData: [number, number] | CityData,
+  nameOrOptions?: string | Omit<UseCityOptions, 'color' | 'labelOffset'>,
+  options?: UseCityOptions
 ): CityObject {
-  const {
-    radius = 100,
-    color = 0xffffff, // 统一使用白色
-    onHover,
-    onLeave,
-  } = options
+
+  // 判断调用方式并提取参数
+  let lngLat: [number, number]
+  let name: string
+  let color: THREE.Color | string | number
+  let labelOffset: { x: number; y: number; z: number }
+  let radius: number
+  let onHover: ((city: CityObject, event: MouseEvent) => void) | undefined
+  let onLeave: ((city: CityObject, event: MouseEvent) => void) | undefined
+
+  if (Array.isArray(lngLatOrCityData)) {
+    // 传统调用方式：useCity([lng, lat], name, options)
+    lngLat = lngLatOrCityData
+    name = nameOrOptions as string
+    const opts = options || {}
+    radius = opts.radius || 100
+    color = opts.color || 0xffffff
+    labelOffset = opts.labelOffset || { x: 0, y: 0, z: 0 }
+    onHover = opts.onHover
+    onLeave = opts.onLeave
+  } else {
+    // 新调用方式：useCity(cityData, options)
+    const cityData = lngLatOrCityData
+    const opts = (nameOrOptions as Omit<UseCityOptions, 'color' | 'labelOffset'>) || {}
+    lngLat = [cityData.lng, cityData.lat]
+    name = cityData.name
+    radius = opts.radius || 100
+    color = cityData.color
+    labelOffset = cityData.labelOffset || { x: 0, y: 0, z: 0 }
+    onHover = opts.onHover
+    onLeave = opts.onLeave
+  }
 
   const position = convertLngLatToVector3(lngLat[0], lngLat[1], radius)
   console.log(`Converted (lng: ${lngLat[0]}, lat: ${lngLat[1]}) to Vector3:`, position);
@@ -35,7 +67,10 @@ export function useCity(
   mesh.add(sprite)
   
   mesh.position.copy(position)
-  sprite.position.copy(labelPosition.clone().sub(position)) // 标签相对偏移
+  
+  // 计算标签位置：基础位置 + 用户指定的偏移
+  const finalLabelPosition = labelPosition.clone().add(new THREE.Vector3(labelOffset.x, labelOffset.y, labelOffset.z))
+  sprite.position.copy(finalLabelPosition.clone().sub(position)) // 标签相对偏移
 
   // --- 添加用户数据用于鼠标交互 ---
   mesh.userData = {
