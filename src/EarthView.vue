@@ -9,6 +9,10 @@ import { useMouseInteraction } from './composables/useMouseInteraction'
 import CityTooltip from './components/CityTooltip.vue'
 import type { CityObject, CityData } from './types'
 
+// ==================== TWEEN 组管理 ====================
+/** 创建 TWEEN 组用于管理所有补间动画 */
+const tweenGroup = new TWEEN.Group()
+
 // ==================== 响应式数据 ====================
 /** 地球容器的 DOM 引用 */
 const containerRef = ref<HTMLDivElement>()
@@ -84,7 +88,7 @@ onMounted(() => {
       appearDuration: 3000,    // 出现动画时长：3秒
       stayDuration: 1000,      // 停留时长：1秒
       disappearDuration: 3000, // 消失动画时长：3秒
-    })
+    }, tweenGroup)  // 传入 TWEEN 组
     earthGroup.add(link.mesh)
   }
   
@@ -108,13 +112,14 @@ onMounted(() => {
   // ==================== 渲染循环 ====================
   /** 主渲染循环 - 持续更新场景和动画 */
   let animationFrameId: number
-  const animate = () => {
+  const animate = (time: number) => {
     controls.update()  // 更新轨道控制器
-    TWEEN.update()     // 更新补间动画
+    // TWEEN.js 25.0.0+ 新 API：使用 TWEEN.Group 更新补间动画
+    tweenGroup.update(time)
     renderer.render(scene, camera)  // 渲染场景
     animationFrameId = requestAnimationFrame(animate)  // 请求下一帧
   }
-  animate()
+  animate(0)  // 传入初始时间
 
   // ==================== 清理函数 ====================
   /** 组件卸载时的清理工作 */

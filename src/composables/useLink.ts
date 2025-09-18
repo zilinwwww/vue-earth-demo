@@ -19,12 +19,14 @@ interface AnimationOptions {
  * @param sourceCity 起点城市对象
  * @param targetCity 终点城市对象
  * @param options 动画配置选项
+ * @param tweenGroup TWEEN 组实例，用于管理补间动画
  * @returns 包含 Three.js 网格和销毁方法的对象
  */
 export function useLink(
   sourceCity: CityObject,
   targetCity: CityObject,
-  options: AnimationOptions = {}
+  options: AnimationOptions = {},
+  tweenGroup: TWEEN.Group
 ) {
   // ==================== 参数解构和默认值 ====================
   const {
@@ -81,7 +83,7 @@ export function useLink(
   const drawProgress = { value: 0 }
   
   /** 出现动画：从起点到终点逐段绘制 */
-  const appear = new TWEEN.Tween(drawProgress)
+  const appear = new TWEEN.Tween(drawProgress, tweenGroup)
     .to({ value: 100 }, appearDuration)
     .easing(TWEEN.Easing.Quadratic.Out)  // 缓出动画
     .onUpdate(() => {
@@ -104,7 +106,7 @@ export function useLink(
   const disappearProgress = { value: 0 }
   
   /** 消失动画：从起点到终点逐段消失 */
-  const disappear = new TWEEN.Tween(disappearProgress)
+  const disappear = new TWEEN.Tween(disappearProgress, tweenGroup)
     .to({ value: 100 }, disappearDuration)
     .easing(TWEEN.Easing.Quadratic.In)  // 缓入动画
     .onUpdate(() => {
