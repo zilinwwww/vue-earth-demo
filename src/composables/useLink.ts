@@ -85,7 +85,7 @@ export function useLink(
   /** 出现动画：从起点到终点逐段绘制 */
   const appear = new TWEEN.Tween(drawProgress, tweenGroup)
     .to({ value: 100 }, appearDuration)
-    .easing(TWEEN.Easing.Quadratic.Out)  // 缓出动画
+    .easing(TWEEN.Easing.Linear.None)  // 缓出动画
     .onUpdate(() => {
       const currentPoints = Math.floor(drawProgress.value)
       const newPositions = new Float32Array(currentPoints * 3)
