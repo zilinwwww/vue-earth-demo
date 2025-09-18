@@ -23,7 +23,11 @@ onMounted(() => {
     { name: '深圳', lng: 114.0579, lat: 22.5431, color: 0xffffff },
     { name: '北京', lng: 116.4, lat: 39.9, color: 0xffffff },
     { name: '上海', lng: 121.4737, lat: 31.2304, color: 0xffffff },
-    { name: '纽约', lng: -74.0060, lat: 40.7128, color: 0xffffff },
+    { name: '西安', lng: 108.9402, lat: 34.3416, color: 0xffffff },
+    { name: '南京', lng: 118.7969, lat: 32.0603, color: 0xffffff },
+    { name: '杭州', lng: 120.1551, lat: 30.2741, color: 0xffffff },
+    { name: '东莞', lng: 113.7463, lat: 23.0223, color: 0xffffff },
+    { name: '成都', lng: 104.0668, lat: 30.5728, color: 0xffffff },
   ]
   
   // --- 场景对象创建 ---
@@ -79,7 +83,7 @@ onMounted(() => {
 <style scoped>
 .earth-container {
   width: 100%;
-  height: calc(100vh - 120px);
+  height: 100vh;
   overflow: hidden;
 }
 </style>
