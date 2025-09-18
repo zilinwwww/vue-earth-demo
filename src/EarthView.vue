@@ -32,14 +32,14 @@ onMounted(() => {
   
   // --- 数据定义 ---
   const cityData: CityData[] = [
-    { name: '深圳', lng: 114.0579, lat: 22.5431, color: 0xffffff, labelOffset: { x: -5, y: 0, z: 0 } },
-    { name: '北京', lng: 116.4, lat: 39.9, color: 0xffffff, labelOffset: { x: -5, y: 0, z: 0 } },
-    { name: '上海', lng: 121.4737, lat: 31.2304, color: 0xffffff, labelOffset: { x: 5, y: 0, z: 0 } },
+    { name: '深圳', lng: 114.0579, lat: 22.5431, color: 0xffffff, labelOffset: { x: 0, y: -4, z: 0 } },
+    { name: '北京', lng: 116.4, lat: 39.9, color: 0xffffff, labelOffset: { x: 0, y: 3, z: 0 } },
+    { name: '上海', lng: 121.4737, lat: 31.2304, color: 0xffffff, labelOffset: { x: 0, y: 4, z: 0 } },
     { name: '西安', lng: 108.9402, lat: 34.3416, color: 0xffffff, labelOffset: { x: 0, y: 5, z: 0 } },
-    { name: '南京', lng: 118.7969, lat: 32.0603, color: 0xffffff, labelOffset: { x: 0, y: -5, z: 0 } },
-    { name: '杭州', lng: 120.1551, lat: 30.2741, color: 0xffffff, labelOffset: { x: -8, y: 3, z: 0 } },
-    { name: '东莞', lng: 113.7463, lat: 23.0223, color: 0xffffff, labelOffset: { x: 8, y: 3, z: 0 } },
-    { name: '成都', lng: 104.0668, lat: 30.5728, color: 0xffffff, labelOffset: { x: 0, y: 8, z: 0 } },
+    { name: '南京', lng: 118.7969, lat: 32.0603, color: 0xffffff, labelOffset: { x: 0, y: 4, z: 0 } },
+    { name: '杭州', lng: 120.1551, lat: 30.2741, color: 0xffffff, labelOffset: { x: 0.5, y: -5, z: 0 } },
+    { name: '东莞', lng: 113.7463, lat: 23.0223, color: 0xffffff, labelOffset: { x: 4, y: 3, z: 0 } },
+    { name: '成都', lng: 104.0668, lat: 30.5728, color: 0xffffff, labelOffset: { x: 0, y: 5, z: 0 } },
   ]
   
   // --- 场景对象创建 ---

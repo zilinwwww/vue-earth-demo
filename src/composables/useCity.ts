@@ -61,16 +61,23 @@ export function useCity(
   const cityPoint = createCityPoint(color)
   const sprite = createLabelSprite(name, color)
   
+  // --- 创建虚线连接 ---
+  const connectionLine = createDashedLine(color)
+  
   // --- 组合 ---
   const mesh = new THREE.Object3D()
   mesh.add(cityPoint)
   mesh.add(sprite)
+  mesh.add(connectionLine)
   
   mesh.position.copy(position)
   
   // 计算标签位置：基础位置 + 用户指定的偏移
   const finalLabelPosition = labelPosition.clone().add(new THREE.Vector3(labelOffset.x, labelOffset.y, labelOffset.z))
   sprite.position.copy(finalLabelPosition.clone().sub(position)) // 标签相对偏移
+  
+  // 更新连接线位置
+  updateConnectionLine(connectionLine, new THREE.Vector3(0, 0, 0), sprite.position)
 
   // --- 添加用户数据用于鼠标交互 ---
   mesh.userData = {
@@ -144,4 +151,34 @@ function createLabelSprite(name: string, color: THREE.Color | string | number) {
   sprite.scale.set(12, 3, 1)
   
   return sprite
+}
+
+/** 创建虚线连接 */
+function createDashedLine(color: THREE.Color | string | number) {
+  const geometry = new THREE.BufferGeometry()
+  const material = new THREE.LineDashedMaterial({
+    color: color,
+    transparent: true,
+    opacity: 0.6,
+    dashSize: 0.5,
+    gapSize: 0.3,
+    linewidth: 1
+  })
+  
+  const line = new THREE.Line(geometry, material)
+  return line
+}
+
+/** 更新连接线位置 */
+function updateConnectionLine(line: THREE.Line, startPos: THREE.Vector3, endPos: THREE.Vector3) {
+  const positions = new Float32Array([
+    startPos.x, startPos.y, startPos.z,
+    endPos.x, endPos.y, endPos.z
+  ])
+  
+  line.geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  line.geometry.attributes.position.needsUpdate = true
+  
+  // 更新虚线
+  line.computeLineDistances()
 }
