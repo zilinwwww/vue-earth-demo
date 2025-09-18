@@ -53,28 +53,31 @@ export function useMouseInteraction(options: MouseInteractionOptions) {
     let foundCity: CityObject | null = null
     
     for (const intersect of intersects) {
-      // 向上遍历父级对象，查找带有城市标识的对象
-      let currentObject: THREE.Object3D | null = intersect.object
-      while (currentObject) {
-        if (currentObject.userData?.type === 'city') {
-          // 构建城市对象
-          foundCity = {
-            mesh: currentObject,
-            getPosition: () => currentObject!.position.clone(),
-            name: currentObject.userData.name,
-            data: {
+      // 只检测城市点（SphereGeometry），排除标签精灵（Sprite）
+      if (isCityPoint(intersect.object)) {
+        // 向上遍历父级对象，查找带有城市标识的对象
+        let currentObject: THREE.Object3D | null = intersect.object
+        while (currentObject) {
+          if (currentObject.userData?.type === 'city') {
+            // 构建城市对象
+            foundCity = {
+              mesh: currentObject,
+              getPosition: () => currentObject!.position.clone(),
               name: currentObject.userData.name,
-              lng: currentObject.userData.lng,
-              lat: currentObject.userData.lat,
-              color: 0xffffff
+              data: {
+                name: currentObject.userData.name,
+                lng: currentObject.userData.lng,
+                lat: currentObject.userData.lat,
+                color: 0xffffff
+              }
             }
+            break
           }
-          break
+          currentObject = currentObject.parent
         }
-        currentObject = currentObject.parent
+        
+        if (foundCity) break
       }
-      
-      if (foundCity) break
     }
     
     // ==================== 悬停状态更新 ====================
@@ -151,6 +154,26 @@ export function useMouseInteraction(options: MouseInteractionOptions) {
     renderer.domElement.removeEventListener('click', onMouseClick)
   }
   
+  // ==================== 辅助函数 ====================
+  /**
+   * 判断对象是否为城市点（而不是标签精灵）
+   * @param object 要检查的 Three.js 对象
+   * @returns 是否为城市点
+   */
+  function isCityPoint(object: THREE.Object3D): boolean {
+    // 检查对象类型和几何体
+    if (object instanceof THREE.Mesh) {
+      const geometry = object.geometry
+      // 城市点使用 SphereGeometry，标签精灵使用 Sprite
+      if (geometry instanceof THREE.SphereGeometry) {
+        // 检查半径，城市点半径 <= 2.5
+        const radius = geometry.parameters?.radius || 0
+        return radius <= 2.5
+      }
+    }
+    return false
+  }
+
   // ==================== 返回对象 ====================
   return {
     destroy  // 销毁方法
