@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref, onUnmounted, reactive } from 'vue'
 import * as TWEEN from '@tweenjs/tween.js'
 import { useScene } from './composables/useScene'
 import { useEarth } from './composables/useEarth'
 import { useCity } from './composables/useCity'
 import { useLink } from './composables/useLink'
+import { useMouseInteraction } from './composables/useMouseInteraction'
+import CityTooltip from './components/CityTooltip.vue'
 import type { CityObject, CityData } from './types'
 
 const containerRef = ref<HTMLDivElement>()
+
+// 悬停状态
+const hoverState = reactive({
+  visible: false,
+  position: { x: 0, y: 0 },
+  cityData: null as CityData | null
+})
+
+// 鼠标交互实例
+let mouseInteraction: any = null
 
 onMounted(() => {
   if (!containerRef.value) return
@@ -32,8 +44,17 @@ onMounted(() => {
   
   // --- 场景对象创建 ---
   const cityObjects: CityObject[] = cityData.map(city => {
-    const cityObj = useCity([city.lng, city.lat], city.name, { color: city.color })
+    const cityObj = useCity([city.lng, city.lat], city.name, { 
+      color: city.color,
+      onHover: (cityObj) => {
+        console.log(`悬停在城市: ${cityObj.name}`)
+      },
+      onLeave: (cityObj) => {
+        console.log(`离开城市: ${cityObj.name}`)
+      }
+    })
     earthGroup.add(cityObj.mesh)
+    console.log(`添加城市 ${city.name} 到场景，userData:`, cityObj.mesh.userData)
     return { ...cityObj, data: city }
   })
   
@@ -59,6 +80,9 @@ onMounted(() => {
       controls.target.set(0, 0, 0) // 旋转中心是地球
   }
   
+  // --- 初始化鼠标交互 ---
+  mouseInteraction = useMouseInteraction({ camera, renderer, scene, hoverState })
+  
   // --- 渲染循环 ---
   let animationFrameId: number;
   const animate = () => {
@@ -71,19 +95,35 @@ onMounted(() => {
 
   onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
+    if (mouseInteraction) {
+      mouseInteraction.destroy();
+    }
     // 可以在这里添加更多的清理逻辑
   });
 })
 </script>
 
 <template>
-  <div ref="containerRef" class="earth-container" />
+  <div class="earth-wrapper">
+    <div ref="containerRef" class="earth-container" />
+    <CityTooltip 
+      :visible="hoverState.visible"
+      :position="hoverState.position"
+      :city-data="hoverState.cityData"
+    />
+  </div>
 </template>
 
 <style scoped>
-.earth-container {
+.earth-wrapper {
+  position: relative;
   width: 100%;
   height: 100vh;
+}
+
+.earth-container {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 </style>
