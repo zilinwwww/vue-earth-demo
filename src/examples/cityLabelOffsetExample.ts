@@ -2,7 +2,7 @@
 import { useCity } from '../composables/useCity'
 import type { CityData } from '../types'
 
-// 新方式：直接在 CityData 中定义 labelOffset
+// 在 CityData 中定义所有城市属性
 const cityData: CityData[] = [
   {
     name: '深圳',
@@ -55,7 +55,7 @@ const cityData: CityData[] = [
   }
 ]
 
-// 使用新的调用方式
+// 简化的调用方式
 const cities = cityData.map(city => 
   useCity(city, {
     onHover: (cityObj) => console.log(`悬停在城市: ${cityObj.name}`),
@@ -63,10 +63,4 @@ const cities = cityData.map(city =>
   })
 )
 
-// 传统方式仍然支持
-const traditionalCity = useCity([104.0668, 30.5728], '成都', {
-  color: 0xffffff,
-  labelOffset: { x: 0, y: 8, z: 0 }
-})
-
-export { cities, traditionalCity }
+export { cities }

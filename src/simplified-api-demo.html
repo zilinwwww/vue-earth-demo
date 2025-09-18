@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简化后的 useCity API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+        .code {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 4px solid #00aaff;
+        }
+        .highlight {
+            color: #00aaff;
+            font-weight: bold;
+        }
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background: #3a1a1a;
+            border: 1px solid #ff4444;
+        }
+        .after {
+            background: #1a3a1a;
+            border: 1px solid #44ff44;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 简化后的 useCity API</h1>
+    
+    <div class="section">
+        <h2>✨ 简化内容</h2>
+        <p>移除了复杂的函数重载，只保留一种简洁的调用方式：</p>
+        <ul>
+            <li>❌ 移除了传统参数调用方式</li>
+            <li>❌ 移除了复杂的函数重载</li>
+            <li>✅ 只保留 <span class="highlight">useCity(cityData, options)</span> 方式</li>
+            <li>✅ 所有城市属性都在 <span class="highlight">CityData</span> 中定义</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📝 新的API签名</h2>
+        <div class="code">
+// 简化的函数签名
+export function useCity(
+  cityData: CityData,
+  options: UseCityOptions = {}
+): CityObject
+
+// 简化的选项接口
+interface UseCityOptions {
+  radius?: number
+  onHover?: (city: CityObject, event: MouseEvent) => void
+  onLeave?: (city: CityObject, event: MouseEvent) => void
+}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔄 对比：简化前后</h2>
+        <div class="before-after">
+            <div class="before">
+                <h3>❌ 简化前（复杂）</h3>
+                <div class="code">
+// 函数重载
+export function useCity(cityData: CityData, options?: ...): CityObject
+export function useCity(lngLat: [number, number], name: string, options?: ...): CityObject
+
+// 复杂的实现
+export function useCity(
+  lngLatOrCityData: [number, number] | CityData,
+  nameOrOptions?: string | ...,
+  options?: UseCityOptions
+): CityObject {
+  // 复杂的类型判断逻辑
+  if (Array.isArray(lngLatOrCityData)) {
+    // 传统方式处理
+  } else {
+    // 新方式处理
+  }
+}
+                </div>
+            </div>
+            
+            <div class="after">
+                <h3>✅ 简化后（简洁）</h3>
+                <div class="code">
+// 单一函数签名
+export function useCity(
+  cityData: CityData,
+  options: UseCityOptions = {}
+): CityObject {
+  // 直接使用 cityData 属性
+  const lngLat = [cityData.lng, cityData.lat]
+  const name = cityData.name
+  const color = cityData.color
+  const labelOffset = cityData.labelOffset || { x: 0, y: 0, z: 0 }
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>💻 使用示例</h2>
+        <div class="code">
+// 定义城市数据
+const cityData: CityData = {
+  name: '深圳',
+  lng: 114.0579,
+  lat: 22.5431,
+  color: 0xffffff,
+  labelOffset: { x: -5, y: 0, z: 0 }
+}
+
+// 创建城市对象
+const city = useCity(cityData, {
+  radius: 100,
+  onHover: (city) => console.log('悬停城市:', city.name),
+  onLeave: (city) => console.log('离开城市:', city.name)
+})
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🎨 功能特性</h2>
+        <ul>
+            <li><span class="highlight">虚线连接</span> - 城市点与标签之间的虚线</li>
+            <li><span class="highlight">标签偏移</span> - 通过 CityData.labelOffset 控制</li>
+            <li><span class="highlight">颜色支持</span> - 通过 CityData.color 设置</li>
+            <li><span class="highlight">交互回调</span> - onHover 和 onLeave 事件</li>
+            <li><span class="highlight">类型安全</span> - 完整的 TypeScript 支持</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🚀 优势</h2>
+        <ul>
+            <li>✅ <strong>更简洁</strong> - 单一函数签名，易于理解</li>
+            <li>✅ <strong>更一致</strong> - 所有城市属性统一管理</li>
+            <li>✅ <strong>更易维护</strong> - 减少了复杂的类型判断</li>
+            <li>✅ <strong>更易扩展</strong> - 新属性只需在 CityData 中添加</li>
+            <li>✅ <strong>更易测试</strong> - 简化的逻辑更容易测试</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🔗 查看效果</h2>
+        <p>访问 <a href="http://localhost:3001/" target="_blank" style="color: #00aaff;">http://localhost:3001/</a> 查看简化后的效果：</p>
+        <ul>
+            <li>城市点与标签之间的虚线连接</li>
+            <li>清晰的标签偏移效果</li>
+            <li>简洁的代码结构</li>
+        </ul>
+    </div>
+</body>
+</html>
