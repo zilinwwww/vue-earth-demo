@@ -6,7 +6,9 @@ import { useEarth } from './composables/useEarth'
 import { useCity } from './composables/useCity'
 import { useLink } from './composables/useLink'
 import { useMouseInteraction } from './composables/useMouseInteraction'
+import { useLinkPopup } from './composables/useLinkPopup'
 import CityTooltip from './components/CityTooltip.vue'
+import LinkPopup from './components/LinkPopup.vue'
 import type { CityObject, CityData } from './types'
 
 // ==================== TWEEN 组管理 ====================
@@ -26,6 +28,12 @@ const hoverState = reactive({
 
 /** 鼠标交互实例 - 用于清理事件监听器 */
 let mouseInteraction: { destroy: () => void } | null = null
+
+/** 连线弹窗管理器 */
+const linkPopupManager = useLinkPopup({
+  duration: 5000,    // 弹窗显示5秒
+  offsetY: -100      // 向上偏移100像素
+})
 
 // ==================== 组件生命周期 ====================
 onMounted(() => {
@@ -84,6 +92,10 @@ onMounted(() => {
   const shenzhen = cityObjects.find(c => c.data.name === '深圳')
 
   if (beijing && shenzhen) {
+    // 为弹窗管理器添加相机和渲染器引用
+    linkPopupManager.camera = camera
+    linkPopupManager.renderer = renderer
+    
     const link = useLink(beijing, shenzhen, {
       appearDuration: 3000,    // 出现动画时长：3秒
       stayDuration: 1000,      // 停留时长：1秒
@@ -91,7 +103,7 @@ onMounted(() => {
     }, tweenGroup, {  // 传入 TWEEN 组和分辨率
       width: containerRef.value.clientWidth,
       height: containerRef.value.clientHeight
-    })
+    }, linkPopupManager)  // 传入弹窗管理器
     earthGroup.add(link.mesh)
   }
   
@@ -112,6 +124,7 @@ onMounted(() => {
   /** 初始化鼠标交互系统，处理城市悬停和点击 */
   mouseInteraction = useMouseInteraction({ camera, renderer, scene, hoverState })
   
+  
   // ==================== 渲染循环 ====================
   /** 主渲染循环 - 持续更新场景和动画 */
   let animationFrameId: number
@@ -119,6 +132,13 @@ onMounted(() => {
     controls.update()  // 更新轨道控制器
     // TWEEN.js 25.0.0+ 新 API：使用 TWEEN.Group 更新补间动画
     tweenGroup.update(time)
+    
+    // 更新弹窗位置（跟随相机变化）
+    if (linkPopupManager.popups.length > 0) {
+      linkPopupManager.updateAllPopupPositions(camera, renderer)
+      linkPopupManager.cleanupExpiredPopups() // 清理过期弹窗
+    }
+    
     renderer.render(scene, camera)  // 渲染场景
     animationFrameId = requestAnimationFrame(animate)  // 请求下一帧
   }
@@ -147,6 +167,10 @@ onMounted(() => {
       :position="hoverState.position"
       :city-data="hoverState.cityData"
     />
+    
+    <!-- 连线弹窗组件 - 显示连线信息 -->
+    <LinkPopup :popups="linkPopupManager.popups" />
+
   </div>
 </template>
 
@@ -163,5 +187,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: hidden; /* 隐藏超出部分，确保地球完整显示 */
+  position: relative;
+  z-index: 100; /* 地球在弹窗之下，但高于其他元素 */
 }
 </style>

@@ -28,7 +28,8 @@ export function useLink(
   targetCity: CityObject,
   options: AnimationOptions = {},
   tweenGroup: TWEEN.Group,
-  resolution: { width: number; height: number }
+  resolution: { width: number; height: number },
+  linkPopupManager?: any
 ) {
   // ==================== 参数解构和默认值 ====================
   const {
@@ -104,6 +105,19 @@ export function useLink(
         
         // 更新 MeshLine 几何体
         meshLine.setPoints(points)
+      }
+    })
+    .onStart(() => {
+      // 连线开始出现时显示弹窗
+      if (linkPopupManager) {
+        const sourcePos = sourceCity.getPosition()
+        linkPopupManager.showLinkPopup(
+          sourceCity.data,
+          targetCity.data,
+          sourcePos,
+          linkPopupManager.camera,
+          linkPopupManager.renderer
+        )
       }
     })
 
