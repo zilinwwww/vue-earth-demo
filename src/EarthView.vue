@@ -88,7 +88,10 @@ onMounted(() => {
       appearDuration: 3000,    // 出现动画时长：3秒
       stayDuration: 1000,      // 停留时长：1秒
       disappearDuration: 3000, // 消失动画时长：3秒
-    }, tweenGroup)  // 传入 TWEEN 组
+    }, tweenGroup, {  // 传入 TWEEN 组和分辨率
+      width: containerRef.value.clientWidth,
+      height: containerRef.value.clientHeight
+    })
     earthGroup.add(link.mesh)
   }
   

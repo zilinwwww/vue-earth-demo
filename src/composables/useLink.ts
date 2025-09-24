@@ -4,6 +4,7 @@
  */
 import * as THREE from 'three'
 import * as TWEEN from '@tweenjs/tween.js'
+import { MeshLine, MeshLineMaterial } from 'three.meshline'
 import type { CityObject } from '../types'
 
 /** 飞线动画配置选项 */
@@ -26,7 +27,8 @@ export function useLink(
   sourceCity: CityObject,
   targetCity: CityObject,
   options: AnimationOptions = {},
-  tweenGroup: TWEEN.Group
+  tweenGroup: TWEEN.Group,
+  resolution: { width: number; height: number }
 ) {
   // ==================== 参数解构和默认值 ====================
   const {
@@ -38,6 +40,7 @@ export function useLink(
   // ==================== 常量定义 ====================
   const LINK_COLOR = 0x00aaff  // 飞线颜色（蓝色）
   const CURVE_POINTS = 100     // 曲线分段数
+  const LINE_WIDTH = 0.3         // 线条宽度（像素）
 
   // ==================== 场景对象创建 ====================
   /** 飞线组容器 */
@@ -61,22 +64,24 @@ export function useLink(
   /** 获取曲线上的所有点 */
   const allPoints = curve.getPoints(CURVE_POINTS)
   
-  /** 创建线条几何体 */
-  const geometry = new THREE.BufferGeometry()
-  const initialPositions = new Float32Array(3)  // 初始只有1个点
-  geometry.setAttribute('position', new THREE.BufferAttribute(initialPositions, 3))
-
-  /** 创建线条材质 */
-  const material = new THREE.LineBasicMaterial({
+  /** 创建 MeshLine 几何体 */
+  const meshLine = new MeshLine()
+  
+  /** 创建 MeshLine 材质 */
+  const material = new MeshLineMaterial({
     color: LINK_COLOR,
-    linewidth: 1,
+    lineWidth: LINE_WIDTH,
     transparent: true,
     opacity: 1,
+    resolution: new THREE.Vector2(resolution.width, resolution.height),
   })
 
-  /** 创建线条对象 */
-  const line = new THREE.Line(geometry, material)
+  /** 创建 MeshLine 对象 */
+  const line = new THREE.Mesh(meshLine, material)
   linkGroup.add(line)
+  
+  // 初始化空线条
+  meshLine.setPoints([])
 
   // ==================== 动画系统 ====================
   /** 出现动画进度（0-100） */
@@ -88,18 +93,18 @@ export function useLink(
     .easing(TWEEN.Easing.Linear.None)  // 缓出动画
     .onUpdate(() => {
       const currentPoints = Math.floor(drawProgress.value)
-      const newPositions = new Float32Array(currentPoints * 3)
       
-      // 更新几何体顶点位置
-      for (let i = 0; i < currentPoints; i++) {
-        const point = allPoints[i]
-        newPositions[i * 3] = point.x
-        newPositions[i * 3 + 1] = point.y
-        newPositions[i * 3 + 2] = point.z
+      if (currentPoints > 0) {
+        // 创建当前应该显示的点的数组
+        const points = []
+        for (let i = 0; i < currentPoints; i++) {
+          const point = allPoints[i]
+          points.push(point.x, point.y, point.z)
+        }
+        
+        // 更新 MeshLine 几何体
+        meshLine.setPoints(points)
       }
-      
-      geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, 3))
-      geometry.attributes.position.needsUpdate = true
     })
 
   /** 消失动画进度（0-100） */
@@ -114,24 +119,20 @@ export function useLink(
 
       // 如果消失进度达到100%，清空线条
       if (startIndex >= allPoints.length) {
-        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(0), 3))
-        geometry.attributes.position.needsUpdate = true
+        meshLine.setPoints([])
         return
       }
       
       // 保留从当前索引到终点的部分
       const remainingPoints = allPoints.slice(startIndex)
-      const newPositions = new Float32Array(remainingPoints.length * 3)
+      const points = []
       
       for (let i = 0; i < remainingPoints.length; i++) {
         const point = remainingPoints[i]
-        newPositions[i * 3] = point.x
-        newPositions[i * 3 + 1] = point.y
-        newPositions[i * 3 + 2] = point.z
+        points.push(point.x, point.y, point.z)
       }
       
-      geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, 3))
-      geometry.attributes.position.needsUpdate = true
+      meshLine.setPoints(points)
     })
     .onComplete(() => {
       // 动画完成后销毁对象
@@ -149,7 +150,6 @@ export function useLink(
    * 销毁飞线对象，释放内存
    */
   const destroy = () => {
-    geometry.dispose()    // 释放几何体
     material.dispose()    // 释放材质
     linkGroup.remove(line) // 从组中移除线条
     
